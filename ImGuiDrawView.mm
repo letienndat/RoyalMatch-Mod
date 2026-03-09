@@ -74,19 +74,15 @@ static bool isShowMenu = true;
 - (void)hook {
   LOG(@"========= Start hooking =========");
 
-  HOOK_V2(ENCRYPTOFFSET("0x69fb7c"), get_Coins, _get_Coins);
+  HOOK_V2(ENCRYPTOFFSET("0x007E8C88"), get_Coins, _get_Coins); // Royal.Infrastructure.Services.Backend.Protocol.get_Coins()
 
   LOG(@"========= Hooking done =========");
 }
 
 - (void)patch {
-  LOG(@"========= Start patching =========");
-
   // patchOffset(0x1000056c8, "08 00 80 52");
   // patchOffset(0x1000056ec, "16 00 80 52");
   // patchOffset(0x1000057c4, "08 00 80 52");
-
-  LOG(@"========= Patch done =========");
 }
 
 + (void)showChange:(BOOL)open {
@@ -191,8 +187,13 @@ static bool isShowMenu = true;
       ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
     }
 
-    if (isShowMenu == true) {
-      ImGui::ShowDemoWindow(&isShowMenu);
+    if (isShowMenu) {
+      ImGui::Begin("Royal Match Mod", &isShowMenu);
+
+      ImGui::Checkbox("Vàng", &isActiveCoin);
+      ImGui::SliderInt("", &coins, 0, 999999);
+
+      ImGui::End(); 
     }
 
     [self patch];

@@ -29,6 +29,7 @@ static ImGuiLoad *extraInfo;
                    extraInfo = [ImGuiLoad new];
                    [extraInfo initTapGes];
                    [extraInfo initTapGesHide];
+                   [extraInfo show];
                  });
 }
 
