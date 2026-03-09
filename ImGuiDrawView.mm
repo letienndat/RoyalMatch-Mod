@@ -74,8 +74,10 @@ static bool isShowMenu = true;
 - (void)hook {
   LOG(@"========= Start hooking =========");
 
-  HOOK_V2(ENCRYPTOFFSET("0x007E8C88"), get_Coins, _get_Coins); // Royal.Infrastructure.Services.Backend.Protocol.get_Coins()
-
+  // int32_t __fastcall Royal_Infrastructure_Services_Storage_Tables_UserKeyValue__GetInt(
+  //     System_String_o * key, int32_t defaultValue, const MethodInfo *method)
+  HOOK_V2(ENCRYPTOFFSET("0x006F3618"), userKeyValue_GetInt,
+          _userKeyValue_GetInt);
   LOG(@"========= Hooking done =========");
 }
 
@@ -190,10 +192,20 @@ static bool isShowMenu = true;
     if (isShowMenu) {
       ImGui::Begin("Royal Match Mod", &isShowMenu);
 
-      ImGui::Checkbox("Vàng", &isActiveCoin);
-      ImGui::SliderInt("", &coins, 0, 999999);
+      ImGui::Checkbox("Coins", &isActiveCoin);
+      ImGui::SameLine();
+      ImGui::SliderInt("##_Coins", &coins, 0, 999999);
+      ImGui::Checkbox("Level", &isActiveLevel);
+      ImGui::SameLine();
+      ImGui::SliderInt("##_Level", &level, 1, 13201);
+      ImGui::Checkbox("Stars", &isActiveStar);
+      ImGui::SameLine();
+      ImGui::SliderInt("##_Stars", &stars, 0, 99999);
+      ImGui::Checkbox("Chest", &isActiveChest);
+      ImGui::SameLine();
+      ImGui::SliderInt("##_Chest", &chest, 0, 1000);
 
-      ImGui::End(); 
+      ImGui::End();
     }
 
     [self patch];

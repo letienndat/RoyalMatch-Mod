@@ -24,7 +24,7 @@
 #include <mach-o/dyld.h>
 
 #define LOG(...) \
-  NSLog(@"Tweak Mod >>> %@", [NSString stringWithFormat:__VA_ARGS__])
+  NSLog(@"%@ %@", NSSENCRYPT("Tweak Mod >>>"), [NSString stringWithFormat:__VA_ARGS__])
 
 // thanks to shmoo for the usefull stuff under this comment.
 #define timer(sec) dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sec * NSEC_PER_SEC), dispatch_get_main_queue(), ^
