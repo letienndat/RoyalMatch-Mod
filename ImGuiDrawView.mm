@@ -49,6 +49,7 @@ static bool isShowMenu = true;
 
 - (void)loadView {
   self.view = [[MTKView alloc] initWithFrame:CGRectMake(0, 0, kWidth, kHeight)];
+  [self setup];
 }
 
 - (void)viewDidLoad {
@@ -62,8 +63,6 @@ static bool isShowMenu = true;
                                                   blue:0
                                                  alpha:0];
   self.mtkView.clipsToBounds = YES;
-
-  [self setup];
 }
 
 - (void)setup {
@@ -76,8 +75,15 @@ static bool isShowMenu = true;
 
   // int32_t __fastcall Royal_Infrastructure_Services_Storage_Tables_UserKeyValue__GetInt(
   //     System_String_o * key, int32_t defaultValue, const MethodInfo *method)
-  HOOK_V2(ENCRYPTOFFSET("0x006F3618"), userKeyValue_GetInt,
-          _userKeyValue_GetInt);
+  HOOK_V2(ENCRYPTOFFSET("0x006F35E8"), userKeyValue_SetInt, _userKeyValue_SetInt);
+  HOOK_V2(ENCRYPTOFFSET("0x006F369C"), userKeyValue_SetLong, _userKeyValue_SetLong);
+  HOOK_V2(ENCRYPTOFFSET("0x006E4DF0"), userKeyValue_SetIntWithDB, _userKeyValue_SetIntWithDB);
+  HOOK_V2(ENCRYPTOFFSET("0x006E501C"), userKeyValue_SetLongWithDB, _userKeyValue_SetLongWithDB);
+  HOOK_V2(ENCRYPTOFFSET("0x006F3618"), userKeyValue_GetInt, _userKeyValue_GetInt);
+  HOOK_V2(ENCRYPTOFFSET("0x006F36CC"), userKeyValue_GetLong, _userKeyValue_GetLong);
+  HOOK_V2(ENCRYPTOFFSET("0x006E4EFC"), userKeyValue_GetIntWithDB, _userKeyValue_GetIntWithDB);
+  HOOK_V2(ENCRYPTOFFSET("0x006E5128"), userKeyValue_GetLongWithDB, _userKeyValue_GetLongWithDB);
+
   LOG(@"========= Hooking done =========");
 }
 

@@ -32,11 +32,11 @@
 #define HOOK(offset, ptr, orig) MSHookFunction((void *)getRealOffset(offset), (void *)ptr, (void **)&orig)
 #define HOOK_NO_ORIG(offset, ptr) MSHookFunction((void *)getRealOffset(offset), (void *)ptr, NULL)
 #define HOOK_V2(offset, ptr, orig)                               \
-  NSString *result_##y = StaticInlineHookPatch(                  \
+  NSString *result_##ptr = StaticInlineHookPatch(                  \
       (char *)[common getFrameworkName], offset, nullptr);       \
-  if (result_##y)                                                \
+  if (result_##ptr)                                                \
   {                                                              \
-    LOG(@"Hook result: %s", result_##y.UTF8String);              \
+    LOG(@"Hook result: %s", result_##ptr.UTF8String);              \
     void *result = StaticInlineHookFunction(                     \
         (char *)[common getFrameworkName], offset, (void *)ptr); \
     LOG(@"Hook result %p", result);                              \
