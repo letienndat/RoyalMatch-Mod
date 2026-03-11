@@ -12,7 +12,6 @@
 #import "KittyMemory/MemoryPatch.hpp"
 #import "KittyMemory/writeData.hpp"
 #import "KittyMemory/KittyUtils.hpp"
-#import "giovotinh/hook.h"
 
 #ifdef kJAILBREAK
 #import "lib/dobby.h"

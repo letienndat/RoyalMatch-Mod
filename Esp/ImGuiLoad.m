@@ -10,6 +10,9 @@
 #import "ImGuiDrawView.h"
 #import "JHPP.h"
 
+#define timer(sec) dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sec * NSEC_PER_SEC), dispatch_get_main_queue(), ^
+#define onMain(block) dispatch_async(dispatch_get_main_queue(), block)
+
 @interface ImGuiLoad ()
 @property(nonatomic, strong) ImGuiDrawView *imGUI;
 @end
@@ -23,14 +26,22 @@ static ImGuiLoad *extraInfo;
 + (void)load {
   [super load];
 
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)),
-                 dispatch_get_main_queue(), ^{
-                   mainWindow = [common getKeyWindow];
-                   extraInfo = [ImGuiLoad new];
-                   [extraInfo initTapGes];
-                   [extraInfo initTapGesHide];
-                   [extraInfo show];
-                 });
+  CFNotificationCenterAddObserver(
+      CFNotificationCenterGetLocalCenter(), NULL, &didFinishLaunching,
+      (CFStringRef)UIApplicationDidFinishLaunchingNotification, NULL,
+      CFNotificationSuspensionBehaviorDeliverImmediately);
+}
+
+static void didFinishLaunching(CFNotificationCenterRef center, void *observer,
+                               CFStringRef name, const void *object,
+                               CFDictionaryRef userInfo) {
+  mainWindow = [common getKeyWindow];
+  extraInfo = [ImGuiLoad new];
+  [extraInfo initTapGes];
+  [extraInfo initTapGesHide];
+
+  // Show menu after 2s
+  timer(2) { [extraInfo show]; });
 }
 
 - (void)initTapGes {

@@ -9,6 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define UD [NSUserDefaults standardUserDefaults]
+
 @implementation Common
 
 const char *frameworkName = NULL;
@@ -65,6 +67,30 @@ Common *common = [Common new];
   }
 
   return topController;
+}
+
+- (void)setInt:(int)value forKey:(NSString *)key {
+  [UD setInteger:value forKey:key];
+  [UD synchronize];
+}
+
+- (int)integerForKey:(NSString *)key defaultValue:(int)defaultValue {
+  if ([UD objectForKey:key]) {
+    return (int)[UD integerForKey:key];
+  }
+  return defaultValue;
+}
+
+- (void)setBool:(bool)value forKey:(NSString *)key {
+  [UD setBool:value forKey:key];
+  [UD synchronize];
+}
+
+- (bool)boolForKey:(NSString *)key defaultValue:(bool)defaultValue {
+  if ([UD objectForKey:key]) {
+    return [UD boolForKey:key];
+  }
+  return defaultValue;
 }
 
 @end

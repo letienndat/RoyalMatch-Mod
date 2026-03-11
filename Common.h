@@ -18,6 +18,12 @@ NS_ASSUME_NONNULL_BEGIN
 -(UIViewController *)getRootViewController;
 -(UIViewController *)getTopViewController;
 
+// UserDefaults
+-(void)setInt:(int)value forKey:(NSString *)key;
+-(int)integerForKey:(NSString *)key defaultValue:(int)defaultValue;
+-(void)setBool:(bool)value forKey:(NSString *)key;
+-(bool)boolForKey:(NSString *)key defaultValue:(bool)defaultValue;
+
 @end
 
 extern Common *common;

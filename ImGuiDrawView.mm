@@ -3,6 +3,7 @@
 #import "IMGUI/imgui_impl_metal.h"
 #import "IMGUI/zzz.h"
 #import "Macros.h"
+#import "giovotinh/hook.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <UIKit/UIKit.h>
@@ -67,24 +68,30 @@ static bool isShowMenu = true;
 
 - (void)setup {
   [common setFrameworkName:NAME_BINARY];
+  [self loadState];
   [self hook];
 }
 
+- (void)loadState {
+  isActiveCoin = [common boolForKey:@"isActiveCoin" defaultValue:NO];
+  coins = [common integerForKey:@"Coins" defaultValue:0];
+  isActiveStar = [common boolForKey:@"isActiveStar" defaultValue:NO];
+  stars = [common integerForKey:@"Stars" defaultValue:0];
+}
+
 - (void)hook {
-  LOG(@"========= Start hooking =========");
+  LOG(NSSENCRYPT("========= Start hooking ========="));
 
-  // int32_t __fastcall Royal_Infrastructure_Services_Storage_Tables_UserKeyValue__GetInt(
-  //     System_String_o * key, int32_t defaultValue, const MethodInfo *method)
-  HOOK_V2(ENCRYPTOFFSET("0x006F35E8"), userKeyValue_SetInt, _userKeyValue_SetInt);
-  HOOK_V2(ENCRYPTOFFSET("0x006F369C"), userKeyValue_SetLong, _userKeyValue_SetLong);
-  HOOK_V2(ENCRYPTOFFSET("0x006E4DF0"), userKeyValue_SetIntWithDB, _userKeyValue_SetIntWithDB);
-  HOOK_V2(ENCRYPTOFFSET("0x006E501C"), userKeyValue_SetLongWithDB, _userKeyValue_SetLongWithDB);
-  HOOK_V2(ENCRYPTOFFSET("0x006F3618"), userKeyValue_GetInt, _userKeyValue_GetInt);
-  HOOK_V2(ENCRYPTOFFSET("0x006F36CC"), userKeyValue_GetLong, _userKeyValue_GetLong);
-  HOOK_V2(ENCRYPTOFFSET("0x006E4EFC"), userKeyValue_GetIntWithDB, _userKeyValue_GetIntWithDB);
-  HOOK_V2(ENCRYPTOFFSET("0x006E5128"), userKeyValue_GetLongWithDB, _userKeyValue_GetLongWithDB);
+  HOOK_V2(
+      ENCRYPTOFFSET("0x00464190"),
+      Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge,
+      _Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge);
 
-  LOG(@"========= Hooking done =========");
+  HOOK_V2(ENCRYPTOFFSET("0x006A05D4"),
+          Royal_Player_Context_Data_Persistent_UserInventory__UpdateCoins,
+          _Royal_Player_Context_Data_Persistent_UserInventory__UpdateCoins);
+
+  LOG(NSSENCRYPT("========= Hooking done ========="));
 }
 
 - (void)patch {
@@ -150,7 +157,7 @@ static bool isShowMenu = true;
   CGFloat framebufferScale =
       view.window.screen.scale ?: UIScreen.mainScreen.scale;
   io.DisplayFramebufferScale = ImVec2(framebufferScale, framebufferScale);
-  io.DeltaTime = 1 / float(view.preferredFramesPerSecond ?: 120);
+  io.DeltaTime = 1 / float(view.preferredFramesPerSecond ?: 60);
 
   id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
 
@@ -178,6 +185,8 @@ static bool isShowMenu = true;
 
     CGFloat width = kWidth * (isIpad ? 0.5 : 0.8);
     CGFloat height = kHeight * (isIpad ? 0.6 : 0.7);
+    width = 300;
+    height = 300;
     CGFloat x = (kWidth - width) / 2;
     CGFloat y = (kHeight - height) / 2;
 
@@ -197,19 +206,28 @@ static bool isShowMenu = true;
 
     if (isShowMenu) {
       ImGui::Begin("Royal Match Mod", &isShowMenu);
+      ImGui::TextWrapped("Use 3 Fingers Click 3 Times Open Menu\n2 Finger Tap "
+                         "Screen 2 Times Hide Menu");
+      ImGui::TextWrapped("Dùng 3 ngón chạm 2 lần để mở menu\n2 ngón chạm 2 lần "
+                         "để ẩn menu\n\n");
 
-      ImGui::Checkbox("Coins", &isActiveCoin);
+      if (ImGui::Checkbox("Coins", &isActiveCoin)) {
+        [common setBool:isActiveCoin forKey:@"isActiveCoin"];
+      }
       ImGui::SameLine();
-      ImGui::SliderInt("##_Coins", &coins, 0, 999999);
-      ImGui::Checkbox("Level", &isActiveLevel);
+      if (ImGui::SliderInt("##_Coins", &coins, 0, 999999)) {
+        [common setInt:coins forKey:@"Coins"];
+      }
+
+      if (ImGui::Checkbox("Stars", &isActiveStar)) {
+        [common setBool:isActiveStar forKey:@"isActiveStar"];
+      }
       ImGui::SameLine();
-      ImGui::SliderInt("##_Level", &level, 1, 13201);
-      ImGui::Checkbox("Stars", &isActiveStar);
-      ImGui::SameLine();
-      ImGui::SliderInt("##_Stars", &stars, 0, 99999);
-      ImGui::Checkbox("Chest", &isActiveChest);
-      ImGui::SameLine();
-      ImGui::SliderInt("##_Chest", &chest, 0, 1000);
+      if (ImGui::SliderInt("##_Stars", &stars, 0, 99999)) {
+        [common setInt:stars forKey:@"Stars"];
+      }
+
+      ImGui::TextWrapped("\n\nFPS: %.1f", ImGui::GetIO().Framerate);
 
       ImGui::End();
     }
