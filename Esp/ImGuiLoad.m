@@ -39,9 +39,8 @@ static void didFinishLaunching(CFNotificationCenterRef center, void *observer,
   extraInfo = [ImGuiLoad new];
   [extraInfo initTapGes];
   [extraInfo initTapGesHide];
-
-  // Show menu after 2s
-  timer(2) { [extraInfo show]; });
+  [extraInfo show];
+  [extraInfo hide];
 }
 
 - (void)initTapGes {

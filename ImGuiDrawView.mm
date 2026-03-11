@@ -87,10 +87,6 @@ static bool isShowMenu = true;
       Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge,
       _Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge);
 
-  HOOK_V2(ENCRYPTOFFSET("0x006A05D4"),
-          Royal_Player_Context_Data_Persistent_UserInventory__UpdateCoins,
-          _Royal_Player_Context_Data_Persistent_UserInventory__UpdateCoins);
-
   LOG(NSSENCRYPT("========= Hooking done ========="));
 }
 
@@ -157,7 +153,7 @@ static bool isShowMenu = true;
   CGFloat framebufferScale =
       view.window.screen.scale ?: UIScreen.mainScreen.scale;
   io.DisplayFramebufferScale = ImVec2(framebufferScale, framebufferScale);
-  io.DeltaTime = 1 / float(view.preferredFramesPerSecond ?: 60);
+  io.DeltaTime = 1 / float(view.preferredFramesPerSecond ?: 120);
 
   id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
 
@@ -184,9 +180,7 @@ static bool isShowMenu = true;
                    UIUserInterfaceIdiomPad);
 
     CGFloat width = kWidth * (isIpad ? 0.5 : 0.8);
-    CGFloat height = kHeight * (isIpad ? 0.6 : 0.7);
-    width = 300;
-    height = 300;
+    CGFloat height = kHeight * (isIpad ? 0.6 : 0.5);
     CGFloat x = (kWidth - width) / 2;
     CGFloat y = (kHeight - height) / 2;
 
@@ -206,28 +200,34 @@ static bool isShowMenu = true;
 
     if (isShowMenu) {
       ImGui::Begin("Royal Match Mod", &isShowMenu);
-      ImGui::TextWrapped("Use 3 Fingers Click 3 Times Open Menu\n2 Finger Tap "
-                         "Screen 2 Times Hide Menu");
-      ImGui::TextWrapped("Dùng 3 ngón chạm 2 lần để mở menu\n2 ngón chạm 2 lần "
-                         "để ẩn menu\n\n");
+      ImGui::TextWrapped("Use 3 Fingers Click 3 Times Open Menu\n2 Finger Tap Screen 2 Times Hide Menu");
+      ImGui::TextWrapped("Dùng 3 ngón chạm 2 lần để mở menu\n2 ngón chạm 2 lần để ẩn menu\n\n");
 
-      if (ImGui::Checkbox("Coins", &isActiveCoin)) {
+      ImGui::TextWrapped("Click on the type you want to mod + adjust the quantity you want to mod.\n"
+                         "Then click Apply, the game will update automatically.");
+      ImGui::TextWrapped("Chọn thể loại muốn mod + kéo thanh điều chỉnh số lượng muốn mod.\n"
+                         "Sau đó bấm Áp dụng, trò chơi sẽ tự động cập nhật.\n\n");
+
+      ImGui::Checkbox("Coins (Vàng)", &isActiveCoin);
+      ImGui::SliderInt("##_Coins", &coins, 0, 999999);
+      ImGui::Text("\n");
+      ImGui::Checkbox("Stars", &isActiveStar);
+      ImGui::SliderInt("##_Stars", &stars, 0, 9999);
+      ImGui::Text("\n");
+
+      if (ImGui::Button("Apply / Áp dụng")) {
+        applyMod();
         [common setBool:isActiveCoin forKey:@"isActiveCoin"];
-      }
-      ImGui::SameLine();
-      if (ImGui::SliderInt("##_Coins", &coins, 0, 999999)) {
-        [common setInt:coins forKey:@"Coins"];
-      }
-
-      if (ImGui::Checkbox("Stars", &isActiveStar)) {
         [common setBool:isActiveStar forKey:@"isActiveStar"];
-      }
-      ImGui::SameLine();
-      if (ImGui::SliderInt("##_Stars", &stars, 0, 99999)) {
-        [common setInt:stars forKey:@"Stars"];
+        if (isActiveCoin) {
+          [common setInt:coins forKey:@"Coins"];
+        }
+        if (isActiveStar) {
+          [common setInt:stars forKey:@"Stars"];
+        }
       }
 
-      ImGui::TextWrapped("\n\nFPS: %.1f", ImGui::GetIO().Framerate);
+      ImGui::TextWrapped("\nFPS: %.1f", ImGui::GetIO().Framerate);
 
       ImGui::End();
     }
