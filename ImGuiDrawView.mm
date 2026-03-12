@@ -4,6 +4,7 @@
 #import "IMGUI/zzz.h"
 #import "Macros.h"
 #import "giovotinh/hook.h"
+#import "resouces/Resources.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <UIKit/UIKit.h>
@@ -12,15 +13,21 @@
 #define kWidth [UIScreen mainScreen].bounds.size.width
 #define kHeight [UIScreen mainScreen].bounds.size.height
 #define kScale [UIScreen mainScreen].scale
+#define kFloatButtonWidth 50
+#define kFloatButtonHeight 50
+#define kPaddingVertical 30
+#define kPaddingHorizontal 10
 
 @interface ImGuiDrawView () <MTKViewDelegate>
 @property(nonatomic, strong) id<MTLDevice> device;
 @property(nonatomic, strong) id<MTLCommandQueue> commandQueue;
+@property(nonatomic, strong) UIWindow *floatButtonWindow;
+@property(nonatomic, strong) UIImageView *floatButtonImageView;
 @end
 
 @implementation ImGuiDrawView
 
-static bool isShowMenu = true;
+static bool isShowMenu = false;
 
 - (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil
                          bundle:(nullable NSBundle *)nibBundleOrNil {
@@ -64,6 +71,9 @@ static bool isShowMenu = true;
                                                   blue:0
                                                  alpha:0];
   self.mtkView.clipsToBounds = YES;
+  [self setupFloatButton];
+
+  timer(2) { [self snapFloatButtonToEdge]; });
 }
 
 - (void)setup {
@@ -79,6 +89,106 @@ static bool isShowMenu = true;
   stars = [common integerForKey:@"Stars" defaultValue:0];
   isActiveMove = [common boolForKey:@"isActiveMove" defaultValue:NO];
   moves = [common integerForKey:@"Moves" defaultValue:0];
+}
+
+- (void)setupFloatButton {
+  NSString *pureBase64 = kFloatButtonBase64;
+  if ([pureBase64 hasPrefix:@"data:"]) {
+    NSArray *components = [pureBase64 componentsSeparatedByString:@","];
+    if (components.count > 1)
+      pureBase64 = components[1];
+  }
+  NSData *data = [[NSData alloc]
+      initWithBase64EncodedString:pureBase64
+                          options:NSDataBase64DecodingIgnoreUnknownCharacters];
+  UIImage *image = [UIImage imageWithData:data];
+  if (!image)
+    return;
+
+  CGFloat x = (kWidth - kFloatButtonWidth) / 2;
+  CGFloat y = (kHeight - kFloatButtonHeight) / 2;
+
+  self.floatButtonWindow = [[UIWindow alloc]
+      initWithFrame:CGRectMake(x, y, kFloatButtonWidth, kFloatButtonHeight)];
+  self.floatButtonWindow.backgroundColor = [UIColor clearColor];
+  self.floatButtonWindow.windowLevel = UIWindowLevelAlert + 1;
+
+  UIViewController *rootVC = [[UIViewController alloc] init];
+  rootVC.view.backgroundColor = [UIColor clearColor];
+  rootVC.view.userInteractionEnabled = YES;
+  self.floatButtonWindow.rootViewController = rootVC;
+
+  self.floatButtonImageView =
+      [[UIImageView alloc] initWithFrame:self.floatButtonWindow.bounds];
+  self.floatButtonImageView.image = image;
+  self.floatButtonImageView.contentMode = UIViewContentModeScaleAspectFit;
+  self.floatButtonImageView.layer.cornerRadius = kFloatButtonWidth / 2;
+  self.floatButtonImageView.clipsToBounds = YES;
+  self.floatButtonImageView.userInteractionEnabled = YES;
+
+  [self.floatButtonWindow.rootViewController.view
+      addSubview:self.floatButtonImageView];
+  [self.floatButtonWindow makeKeyAndVisible];
+  [[UIApplication sharedApplication].delegate.window makeKeyWindow];
+
+  UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc]
+      initWithTarget:self
+              action:@selector(handlePanFloatButton:)];
+  [self.floatButtonImageView addGestureRecognizer:panGesture];
+
+  UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]
+      initWithTarget:self
+              action:@selector(handleTapFloatButton)];
+  [self.floatButtonImageView addGestureRecognizer:tapGesture];
+}
+
+- (void)handlePanFloatButton:(UIPanGestureRecognizer *)gesture {
+  CGPoint translation = [gesture translationInView:self.floatButtonWindow];
+
+  if (gesture.state == UIGestureRecognizerStateChanged) {
+    CGPoint newCenter =
+        CGPointMake(self.floatButtonWindow.center.x + translation.x,
+                    self.floatButtonWindow.center.y + translation.y);
+    CGFloat minY = (kFloatButtonHeight / 2) + kPaddingVertical;
+    CGFloat maxY = kHeight - (kFloatButtonHeight / 2) - kPaddingVertical;
+    newCenter.y = fmax(minY, fmin(newCenter.y, maxY));
+    self.floatButtonWindow.center = newCenter;
+
+    [gesture setTranslation:CGPointZero inView:self.floatButtonWindow];
+  } else if (gesture.state == UIGestureRecognizerStateEnded ||
+             gesture.state == UIGestureRecognizerStateCancelled) {
+    [self snapFloatButtonToEdge];
+  }
+}
+
+- (void)snapFloatButtonToEdge {
+  CGRect frame = self.floatButtonWindow.frame;
+  CGFloat targetX = (self.floatButtonWindow.center.x < kWidth / 2)
+                        ? kPaddingHorizontal
+                        : kWidth - frame.size.width - kPaddingHorizontal;
+
+  [UIView animateWithDuration:0.5
+                        delay:0
+       usingSpringWithDamping:0.7
+        initialSpringVelocity:0.5
+                      options:UIViewAnimationOptionCurveEaseInOut
+                   animations:^{
+                     CGRect finalFrame = self.floatButtonWindow.frame;
+                     finalFrame.origin.x = targetX;
+                     self.floatButtonWindow.frame = finalFrame;
+                   }
+                   completion:nil];
+}
+
+- (void)handleTapFloatButton {
+  if (self.onCallChange) {
+    isShowMenu = !isShowMenu;
+    self.onCallChange(isShowMenu);
+  }
+
+  UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc]
+      initWithStyle:UIImpactFeedbackStyleLight];
+  [generator impactOccurred];
 }
 
 - (void)hook {
@@ -187,8 +297,8 @@ static bool isShowMenu = true;
     bool isIpad = ([[UIDevice currentDevice] userInterfaceIdiom] ==
                    UIUserInterfaceIdiomPad);
 
-    CGFloat width = kWidth * (isIpad ? 0.5 : 0.8);
-    CGFloat height = kHeight * (isIpad ? 0.6 : 0.6);
+    CGFloat width = fmin(kWidth * (isIpad ? 0.5 : 0.8), 600);
+    CGFloat height = fmin(kHeight * (isIpad ? 0.6 : 0.6), 600);
     CGFloat x = (kWidth - width) / 2;
     CGFloat y = (kHeight - height) / 2;
 
@@ -208,10 +318,14 @@ static bool isShowMenu = true;
 
     if (isShowMenu) {
       ImGui::Begin("Royal Match Mod", &isShowMenu);
-      ImGui::TextWrapped("Use 3 Fingers Click 3 Times Open Menu\n2 Finger Tap "
-                         "Screen 2 Times Hide Menu");
-      ImGui::TextWrapped("Dùng 3 ngón chạm 2 lần để mở menu\n2 ngón chạm 2 lần "
-                         "để ẩn menu\n\n");
+      ImGui::TextWrapped(
+          "Click the floating icon on the screen to open or close the menu.\n"
+          "Alternatively, use three fingers to double-tap to open the menu, or "
+          "two fingers to double-tap to hide the menu.");
+      ImGui::TextWrapped(
+          "Bấm vào icon nổi trên màn hình để mở hoặc đóng menu.\n"
+          "Hoặc dùng 3 ngón chạm 2 lần để mở menu, 2 ngón chạm "
+          "2 lần để ẩn menu\n\n");
 
       ImGui::TextWrapped(
           "Click on the type you want to mod + adjust the quantity you want to "
@@ -227,7 +341,7 @@ static bool isShowMenu = true;
       ImGui::Checkbox("Stars (Sao)", &isActiveStar);
       ImGui::SliderInt("##_Stars", &stars, 0, 9999);
       ImGui::Text("\n");
-      ImGui::Checkbox("Moves (Lượt chơi của mỗi màn)", &isActiveMove);
+      ImGui::Checkbox("Moves (Lượt chơi trong mỗi màn)", &isActiveMove);
       if (ImGui::Button(" - ")) {
         moves = moves == 0 ? 0 : moves - 1;
       }

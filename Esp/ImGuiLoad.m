@@ -41,8 +41,6 @@ static void didFinishLaunching(CFNotificationCenterRef center, void *observer,
   [extraInfo initTapGesHide];
   [extraInfo show];
   [extraInfo hide];
-
-  timer(2) { [extraInfo show]; });
 }
 
 - (void)initTapGes {
@@ -64,6 +62,13 @@ static void didFinishLaunching(CFNotificationCenterRef center, void *observer,
 - (void)show {
   if (!_imGUI) {
     ImGuiDrawView *vc = [ImGuiDrawView new];
+    vc.onCallChange = ^(BOOL open) {
+      if (open) {
+        [extraInfo show];
+      } else {
+        [extraInfo hide];
+      }
+    };
     _imGUI = vc;
   }
 

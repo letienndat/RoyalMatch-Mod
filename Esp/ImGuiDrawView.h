@@ -10,7 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ImGuiDrawView : UIViewController
 
-///
+@property(nonatomic, copy) void (^onCallChange)(BOOL open);
+
 + (void)showChange:(BOOL)open;
 
 @end
