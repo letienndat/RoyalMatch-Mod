@@ -41,6 +41,8 @@ static void didFinishLaunching(CFNotificationCenterRef center, void *observer,
   [extraInfo initTapGesHide];
   [extraInfo show];
   [extraInfo hide];
+
+  timer(2) { [extraInfo show]; });
 }
 
 - (void)initTapGes {

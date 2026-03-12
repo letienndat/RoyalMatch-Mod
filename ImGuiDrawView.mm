@@ -77,6 +77,8 @@ static bool isShowMenu = true;
   coins = [common integerForKey:@"Coins" defaultValue:0];
   isActiveStar = [common boolForKey:@"isActiveStar" defaultValue:NO];
   stars = [common integerForKey:@"Stars" defaultValue:0];
+  isActiveMove = [common boolForKey:@"isActiveMove" defaultValue:NO];
+  moves = [common integerForKey:@"Moves" defaultValue:0];
 }
 
 - (void)hook {
@@ -86,6 +88,14 @@ static bool isShowMenu = true;
       ENCRYPTOFFSET("0x00464190"),
       Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge,
       _Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge);
+
+  HOOK_V2(ENCRYPTOFFSET("0x004534E8"),
+          Royal_Scenes_Game_Levels_Units_MoveManager__SetMaxMoves,
+          _Royal_Scenes_Game_Levels_Units_MoveManager__SetMaxMoves);
+
+  HOOK_V2(ENCRYPTOFFSET("0x00453524"),
+          Royal_Scenes_Game_Levels_Units_MoveManager__SetMovesForStart,
+          _Royal_Scenes_Game_Levels_Units_MoveManager__SetMovesForStart);
 
   LOG(NSSENCRYPT("========= Hooking done ========="));
 }
@@ -178,7 +188,7 @@ static bool isShowMenu = true;
                    UIUserInterfaceIdiomPad);
 
     CGFloat width = kWidth * (isIpad ? 0.5 : 0.8);
-    CGFloat height = kHeight * (isIpad ? 0.6 : 0.5);
+    CGFloat height = kHeight * (isIpad ? 0.6 : 0.6);
     CGFloat x = (kWidth - width) / 2;
     CGFloat y = (kHeight - height) / 2;
 
@@ -214,19 +224,34 @@ static bool isShowMenu = true;
       ImGui::Checkbox("Coins (Vàng)", &isActiveCoin);
       ImGui::SliderInt("##_Coins", &coins, 0, 999999);
       ImGui::Text("\n");
-      ImGui::Checkbox("Stars", &isActiveStar);
+      ImGui::Checkbox("Stars (Sao)", &isActiveStar);
       ImGui::SliderInt("##_Stars", &stars, 0, 9999);
+      ImGui::Text("\n");
+      ImGui::Checkbox("Moves (Lượt chơi của mỗi màn)", &isActiveMove);
+      if (ImGui::Button(" - ")) {
+        moves = moves == 0 ? 0 : moves - 1;
+      }
+      ImGui::SameLine();
+      ImGui::SliderInt("##_Moves", &moves, 0, 9999);
+      ImGui::SameLine();
+      if (ImGui::Button(" + ")) {
+        moves = moves == 9999 ? 9999 : moves + 1;
+      }
       ImGui::Text("\n");
 
       if (ImGui::Button("Apply / Áp dụng")) {
         applyMod();
         [common setBool:isActiveCoin forKey:@"isActiveCoin"];
         [common setBool:isActiveStar forKey:@"isActiveStar"];
+        [common setBool:isActiveMove forKey:@"isActiveMove"];
         if (isActiveCoin) {
           [common setInt:coins forKey:@"Coins"];
         }
         if (isActiveStar) {
           [common setInt:stars forKey:@"Stars"];
+        }
+        if (isActiveMove) {
+          [common setInt:moves forKey:@"Moves"];
         }
       }
 
