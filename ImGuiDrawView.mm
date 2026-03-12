@@ -91,9 +91,7 @@ static bool isShowMenu = true;
 }
 
 - (void)patch {
-  // patchOffset(0x1000056c8, "08 00 80 52");
-  // patchOffset(0x1000056ec, "16 00 80 52");
-  // patchOffset(0x1000057c4, "08 00 80 52");
+  // patchOffset(0x00123456, "1F 20 03 D5"); // NOP
 }
 
 + (void)showChange:(BOOL)open {
@@ -200,13 +198,18 @@ static bool isShowMenu = true;
 
     if (isShowMenu) {
       ImGui::Begin("Royal Match Mod", &isShowMenu);
-      ImGui::TextWrapped("Use 3 Fingers Click 3 Times Open Menu\n2 Finger Tap Screen 2 Times Hide Menu");
-      ImGui::TextWrapped("Dùng 3 ngón chạm 2 lần để mở menu\n2 ngón chạm 2 lần để ẩn menu\n\n");
+      ImGui::TextWrapped("Use 3 Fingers Click 3 Times Open Menu\n2 Finger Tap "
+                         "Screen 2 Times Hide Menu");
+      ImGui::TextWrapped("Dùng 3 ngón chạm 2 lần để mở menu\n2 ngón chạm 2 lần "
+                         "để ẩn menu\n\n");
 
-      ImGui::TextWrapped("Click on the type you want to mod + adjust the quantity you want to mod.\n"
-                         "Then click Apply, the game will update automatically.");
-      ImGui::TextWrapped("Chọn thể loại muốn mod + kéo thanh điều chỉnh số lượng muốn mod.\n"
-                         "Sau đó bấm Áp dụng, trò chơi sẽ tự động cập nhật.\n\n");
+      ImGui::TextWrapped(
+          "Click on the type you want to mod + adjust the quantity you want to "
+          "mod.\n"
+          "Then click Apply, the game will update automatically.");
+      ImGui::TextWrapped(
+          "Chọn thể loại muốn mod + kéo thanh điều chỉnh số lượng muốn mod.\n"
+          "Sau đó bấm Áp dụng, trò chơi sẽ tự động cập nhật.\n\n");
 
       ImGui::Checkbox("Coins (Vàng)", &isActiveCoin);
       ImGui::SliderInt("##_Coins", &coins, 0, 999999);

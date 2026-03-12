@@ -21,6 +21,7 @@
 
 #include <substrate.h>
 #include <mach-o/dyld.h>
+#include <dlfcn.h>
 
 #define LOG(...) \
   NSLog(@"%@ %@", NSSENCRYPT("Tweak Mod >>>"), [NSString stringWithFormat:__VA_ARGS__])
