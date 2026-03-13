@@ -4,7 +4,7 @@
 #import "IMGUI/zzz.h"
 #import "Macros.h"
 #import "giovotinh/hook.h"
-#import "resouces/Resources.h"
+#import "resources/Resources.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <UIKit/UIKit.h>

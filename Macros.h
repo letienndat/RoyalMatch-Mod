@@ -12,12 +12,7 @@
 #import "KittyMemory/MemoryPatch.hpp"
 #import "KittyMemory/writeData.hpp"
 #import "KittyMemory/KittyUtils.hpp"
-
-#ifdef kJAILBREAK
-#import "lib/dobby.h"
-#else
 #import "giovotinh/patch.h"
-#endif
 
 #include <substrate.h>
 #include <mach-o/dyld.h>
@@ -32,11 +27,11 @@
 #define HOOK(offset, ptr, orig) MSHookFunction((void *)getRealOffset(offset), (void *)ptr, (void **)&orig)
 #define HOOK_NO_ORIG(offset, ptr) MSHookFunction((void *)getRealOffset(offset), (void *)ptr, NULL)
 #define HOOK_V2(offset, ptr, orig)                               \
-  NSString *result_##ptr = StaticInlineHookPatch(                  \
+  NSString *result_##ptr = StaticInlineHookPatch(                \
       (char *)[common getFrameworkName], offset, nullptr);       \
-  if (result_##ptr)                                                \
+  if (result_##ptr)                                              \
   {                                                              \
-    LOG(@"Hook result: %s", result_##ptr.UTF8String);              \
+    LOG(@"Hook result: %s", result_##ptr.UTF8String);            \
     void *result = StaticInlineHookFunction(                     \
         (char *)[common getFrameworkName], offset, (void *)ptr); \
     LOG(@"Hook result %p", result);                              \
@@ -68,43 +63,6 @@ void patchOffsetKitty(uint64_t offset, std::string hexBytes)
   }
 }
 
-#ifdef kJAILBREAK
-// Patching offset with Dobby
-void patchOffset(uint64_t offset, std::string hexBytes)
-{
-  uint64_t realOffset = getRealOffset(offset);
-
-  if (!KittyUtils::String::ValidateHex(hexBytes))
-  {
-    LOG(@"Invalid hex string: %s, please re-check the hex you entered.", hexBytes.c_str());
-    return;
-  }
-
-  int size = hexBytes.length() / 2;
-  std::vector<uint8_t> patch_code;
-  patch_code.resize(size);
-  KittyUtils::dataFromHex(hexBytes, &patch_code[0]);
-
-  void *address = (void *)realOffset;
-  uint32_t before = 0;
-  memcpy(&before, address, 4);
-  LOG(@"Verify before 0x%llX = 0x%08X", (unsigned long long)address, before);
-
-  int status = DobbyCodePatch(address, patch_code.data(), size);
-  LOG(@"Patching address: 0x%llX for offset: 0x%llX with hex bytes: %s, status: %d", realOffset, offset, hexBytes.c_str(), status);
-
-  uint32_t after = 0;
-  memcpy(&after, address, 4);
-  LOG(@"Verify after 0x%llX = 0x%08X", (unsigned long long)address, after);
-
-  if (status == -1)
-  {
-    LOG(@"Something went wrong while patching address: 0x%llX for offset: 0x%llX with hex bytes: %s", realOffset, offset, hexBytes.c_str());
-  }
-}
-#endif
-
-#ifndef kJAILBREAK
 // Patch offset for Non-Jailbreak
 // Thanks https://github.com/itsPow45/iOS-Jailed-Runtime-Offset-Patching-and-Hooking/blob/main/Tweak.xm
 void patchOffset(uint64_t vaddr, std::string hexBytes)
@@ -145,4 +103,3 @@ void restorePatchOffset(uint64_t vaddr, std::string hexBytes)
       vaddr,
       hexBytes.data());
 }
-#endif
