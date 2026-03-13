@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(const char *)getFrameworkName;
 
 -(UIWindow *)getKeyWindow;
--(UIViewController *)getRootViewController;
--(UIViewController *)getTopViewController;
+-(UIViewController *)getRootViewController:(UIWindow *)keyWindow;
+-(UIViewController *)getTopViewController:(UIWindow *)keyWindow;
 
 // UserDefaults
 -(void)setInt:(int)value forKey:(NSString *)key;

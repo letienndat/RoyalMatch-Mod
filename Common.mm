@@ -42,31 +42,56 @@ Common *common = [Common new];
   return nil;
 }
 
-- (UIViewController *)getRootViewController {
-  UIWindow *keyWindow = [self getKeyWindow];
+- (UIViewController *)getRootViewController:(UIWindow *)keyWindow {
+  if (!keyWindow)
+    keyWindow = [self getKeyWindow];
   if (!keyWindow) {
     return nil;
   }
-  return [self getKeyWindow].rootViewController;
+  return keyWindow.rootViewController;
 }
 
-- (UIViewController *)getTopViewController {
-  UIViewController *topController = [self getKeyWindow].rootViewController;
-  if (!topController) {
+- (UIViewController *)getTopViewController:(UIWindow *)window {
+  if (!window) {
+    window = [self getKeyWindow];
+  }
+  if (!window) {
     return nil;
   }
 
-  while (topController.presentedViewController) {
-    topController = topController.presentedViewController;
+  UIViewController *top = window.rootViewController;
+  if (!top) {
+    return nil;
   }
 
-  if ([topController isKindOfClass:[UINavigationController class]]) {
-    return ((UINavigationController *)topController).topViewController;
-  } else if ([topController isKindOfClass:[UITabBarController class]]) {
-    return ((UITabBarController *)topController).selectedViewController;
+  while (true) {
+    if (top.presentedViewController) {
+      top = top.presentedViewController;
+      continue;
+    }
+
+    if ([top isKindOfClass:[UINavigationController class]]) {
+      UIViewController *visible =
+          ((UINavigationController *)top).visibleViewController;
+      if (visible) {
+        top = visible;
+        continue;
+      }
+    }
+
+    if ([top isKindOfClass:[UITabBarController class]]) {
+      UIViewController *selected =
+          ((UITabBarController *)top).selectedViewController;
+      if (selected) {
+        top = selected;
+        continue;
+      }
+    }
+
+    break;
   }
 
-  return topController;
+  return top;
 }
 
 - (void)setInt:(int)value forKey:(NSString *)key {

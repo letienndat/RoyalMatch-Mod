@@ -35,12 +35,14 @@ static ImGuiLoad *extraInfo;
 static void didFinishLaunching(CFNotificationCenterRef center, void *observer,
                                CFStringRef name, const void *object,
                                CFDictionaryRef userInfo) {
-  mainWindow = [common getKeyWindow];
-  extraInfo = [ImGuiLoad new];
-  [extraInfo initTapGes];
-  [extraInfo initTapGesHide];
-  [extraInfo show];
-  [extraInfo hide];
+  timer(0.3) {
+    mainWindow = [common getKeyWindow];
+    extraInfo = [ImGuiLoad new];
+    [extraInfo initTapGes];
+    [extraInfo initTapGesHide];
+    [extraInfo show];
+    [extraInfo hide];
+  });
 }
 
 - (void)initTapGes {
@@ -74,7 +76,7 @@ static void didFinishLaunching(CFNotificationCenterRef center, void *observer,
 
   [ImGuiDrawView showChange:YES];
   if (!_imGUI.view.superview) {
-    UIViewController *topVC = [common getTopViewController];
+    UIViewController *topVC = [common getTopViewController:mainWindow];
     [topVC.view addSubview:_imGUI.view];
   }
   _imGUI.view.hidden = NO;

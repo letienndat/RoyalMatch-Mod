@@ -72,8 +72,7 @@ static bool isShowMenu = false;
                                                  alpha:0];
   self.mtkView.clipsToBounds = YES;
   [self setupFloatButton];
-
-  timer(2) { [self snapFloatButtonToEdge]; });
+  timer(1) { [self snapFloatButtonToEdge]; });
 }
 
 - (void)setup {
@@ -128,8 +127,7 @@ static bool isShowMenu = false;
 
   [self.floatButtonWindow.rootViewController.view
       addSubview:self.floatButtonImageView];
-  [self.floatButtonWindow makeKeyAndVisible];
-  [[UIApplication sharedApplication].delegate.window makeKeyWindow];
+  self.floatButtonWindow.hidden = NO;
 
   UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc]
       initWithTarget:self
@@ -343,13 +341,13 @@ static bool isShowMenu = false;
       ImGui::Text("\n");
       ImGui::Checkbox("Moves (Lượt chơi trong mỗi màn)", &isActiveMove);
       if (ImGui::Button(" - ")) {
-        moves = moves == 0 ? 0 : moves - 1;
+        moves = fmax(0, moves - 1);
       }
       ImGui::SameLine();
       ImGui::SliderInt("##_Moves", &moves, 0, 9999);
       ImGui::SameLine();
       if (ImGui::Button(" + ")) {
-        moves = moves == 9999 ? 9999 : moves + 1;
+        moves = fmin(moves + 1, 9999);
       }
       ImGui::Text("\n");
 
