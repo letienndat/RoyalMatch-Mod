@@ -193,15 +193,15 @@ static bool isShowMenu = false;
   LOG(NSSENCRYPT("========= Start hooking ========="));
 
   HOOK_V2(
-      ENCRYPTOFFSET("0x00464190"),
+      ENCRYPTOFFSET("0x01776958"),
       Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge,
       _Royal_Scenes_Home_Ui_Sections_Home_InventoryPanel_LifeInfoView__ArrangeInboxBadge);
 
-  HOOK_V2(ENCRYPTOFFSET("0x004534E8"),
+  HOOK_V2(ENCRYPTOFFSET("0x0168F7F0"),
           Royal_Scenes_Game_Levels_Units_MoveManager__SetMaxMoves,
           _Royal_Scenes_Game_Levels_Units_MoveManager__SetMaxMoves);
 
-  HOOK_V2(ENCRYPTOFFSET("0x00453524"),
+  HOOK_V2(ENCRYPTOFFSET("0x0168F82C"),
           Royal_Scenes_Game_Levels_Units_MoveManager__SetMovesForStart,
           _Royal_Scenes_Game_Levels_Units_MoveManager__SetMovesForStart);
 

@@ -89,7 +89,7 @@ void applyMod()
             goto step_active_star;
 
         *(uint32_t *)((uintptr_t)instanceInventory + 0x10) = coins;
-        uint64_t updateCoins = getRealOffset(ENCRYPTOFFSET("0x006A05D4"));
+        uint64_t updateCoins = getRealOffset(ENCRYPTOFFSET("0x018D0EA8"));
         ((void (*)(void *, int32_t, void *))updateCoins)(instanceInventory, coins, nullptr);
 
         // Get symbol il2cpp_string_new
@@ -100,7 +100,7 @@ void applyMod()
         spendingData.fields._SpendingName_k__BackingField = il2cpp_string_new("TriggerSpendCoinToReloadUI");
 
         // Call spendCoins to trigger reload coin view
-        uint64_t spendCoins = getRealOffset(ENCRYPTOFFSET("0x006A07BC"));
+        uint64_t spendCoins = getRealOffset(ENCRYPTOFFSET("0x018D1090"));
         ((bool (*)(void *, Royal_Player_Context_Data_Session_SpendingData_o, void *, int32_t, void *))spendCoins)(instanceInventory, spendingData, 0, -1, nullptr);
     }
 
@@ -111,7 +111,7 @@ step_active_star:
             goto step_active_move;
 
         *(uint32_t *)((uintptr_t)instanceInventory + 0x14) = stars;
-        uint64_t updateStars = getRealOffset(ENCRYPTOFFSET("0x006A03E4"));
+        uint64_t updateStars = getRealOffset(ENCRYPTOFFSET("0x018D0CB8"));
         ((void (*)(void *, int32_t, void *))updateStars)(instanceInventory, stars, nullptr);
     }
 
@@ -124,7 +124,7 @@ step_active_move:
 
         *(uint32_t *)((uintptr_t)moveManager + 0x20) = moves;
         // Call TriggerMoveChanged to update move in UI
-        uint64_t triggerMoveChanged = getRealOffset(ENCRYPTOFFSET("0x0045347C"));
+        uint64_t triggerMoveChanged = getRealOffset(ENCRYPTOFFSET("0x0168F784"));
         ((void (*)(void *, int32_t, void *))triggerMoveChanged)(moveManager, 0, nullptr);
     }
 }

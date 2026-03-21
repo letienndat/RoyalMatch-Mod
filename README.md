@@ -1,4 +1,4 @@
-### ROYAL MATCH MOD ver 33972
+### ROYAL MATCH MOD
 
 Mod coin
 <br>
