@@ -1,5 +1,7 @@
 ### ROYAL MATCH MOD
 
+**Auto find offset ✌️**
+
 Mod coin
 <br>
 Mod star
